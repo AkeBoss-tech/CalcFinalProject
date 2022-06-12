@@ -1,0 +1,2 @@
+log(sin(x_var), E) + C 
+
