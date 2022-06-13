@@ -1,4 +1,4 @@
-from sympy import Integral, sqrt, symbols, pprint, sin, cos, Derivative, log, E, ln, oo, Rational, tan
+from sympy import Integral, sqrt, symbols, pprint, sin, cos, Derivative, log, E, ln, oo, Rational, tan, Sum
 
 from color import printf, inputf, randomColor
 
@@ -22,6 +22,10 @@ def in_integral(text, bounds=None):
         return f"Integral({text}, x_var)"
     else:
         return f"Integral({text}, (x_var, {bounds[0]}, {bounds[1]}))"
+
+def in_sum(text, bounds=(0, oo)):
+    text = text.replace('x_var', 'n_var')
+    return f"Sum({text}, (n_var, {bounds[0]}, {bounds[1]}))"
 
 letters = 'abcdefghijklmnopqrstuvwxyz'
 letters = [letter for letter in letters]

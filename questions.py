@@ -138,3 +138,8 @@ class GeometricSeriesQuestion(Question):
         self.type = 'Series'
         self.generator = generateGeoSeries
     
+class IntegralTestQuestion(Question):
+    def __init__(self) -> None:
+        self.name = 'Integral Test'
+        self.type = 'Series'
+        self.generator = generatePSeries

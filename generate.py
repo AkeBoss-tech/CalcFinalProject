@@ -1,8 +1,9 @@
 from random import randint, shuffle, choice as chooser
 from calculus import Constant, Polynomial, Multiply, P_Series, Geometric_Series, Addition, Exponential, Sin, Cos, Tan, LN, Composite, e_to_the_x
-from display import in_integral, pretty
+from display import in_integral, pretty, in_sum
+from sympy import *
 
-# TODO add ratio test
+# TODO add ratio, integral test
 # TODO set up but do not solve area under a curve, volume, and arc length questions
 # TODO incorporate it into the Quiz maker
 
@@ -225,4 +226,22 @@ def generateArcLength():
     print(f'What is the arc length from {start} to {end} of this function?\n')
     pretty(equation.pprint)
     pretty(in_integral(f'sqrt(({equation.derivative.pprint})**2 + 1)', bounds=(start, end)))
+
+int_funcs = [generateRandomPowerRule, generateRandomCompositeRule, generateLinearExpression, generateRandomTrig]
+
+x_var, n_var, C = symbols('x n C')
+C = symbols('C', integer=True)
+
+def generateIntegralTest():
+    start = randint(0, 5)
+    end = oo
+    equation = chooser(int_funcs)()
+    # return equation
+    print('What is the convergence of')
+    summ = in_sum(equation.pprint, (start, end))
+    pretty(summ)
     
+    result = eval(f'({summ}).doit()')
+    print(result)
+    print('Converges' if result != oo else 'Diverges')
+

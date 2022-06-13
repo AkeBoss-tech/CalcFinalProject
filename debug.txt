@@ -1,2 +1,2 @@
-log(sin(x_var), E) + C 
+sin(x_var) * Rational('3') + C 
 

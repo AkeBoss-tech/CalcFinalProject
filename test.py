@@ -10,7 +10,7 @@ from sympy import init_printing
 from random import choice
 print('Done')
 
-generateArcLength()
+generateIntegralTest()
 print('Initializing printer ...')
 init_printing()
 print('Done')
