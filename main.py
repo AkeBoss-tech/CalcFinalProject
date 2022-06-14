@@ -144,7 +144,7 @@ def startQuiz(questionGenerator, config):
             problems.append([question, False, time_to_solve, c_ans, u_ans])
         print(f'{round(config[0] - user_answered + start, 2)} seconds left')
             
-        if config[6] != 0 and len(problems) == config[6]:
+        if config[-1] != 0 and len(problems) == config[-1]:
             break
     
 
@@ -193,9 +193,9 @@ def startQuiz(questionGenerator, config):
     print(f'Longest correct answer streak of {calculateLongestStreak(answerBooleans, True)} problems\n')
     print(f'Longest incorrect answer streak of {calculateLongestStreak(answerBooleans, False)} problems\n')
     
-    print('Problems in order of time spent')
-    for problem in sorted(problems, key=lambda x: x[2]):
-        print(problem[0].split('.')[1], 'solved in', round(problem[2],5), 'seconds', 'Correct' if problem[1] else 'Incorrect')
+    # print('Problems in order of time spent')
+    # for problem in sorted(problems, key=lambda x: x[2]):
+    #     print(problem[0].split('.')[1], 'solved in', round(problem[2],5), 'seconds', 'Correct' if problem[1] else 'Incorrect')
 
     input('Enter to print problems')
     for i in range(len(problems)):
