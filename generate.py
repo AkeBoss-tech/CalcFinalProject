@@ -234,7 +234,7 @@ def generateRandomExponential():
     if chooser([True, False, False, False]):
         return Exponential('e')
     
-    frac = generateFraction(6)
+    frac = randint(2, 10)
     
     return Exponential(frac)
 

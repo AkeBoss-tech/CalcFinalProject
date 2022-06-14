@@ -35,6 +35,9 @@ def getAnswer(start = 1, end = 4):
         if inp.isnumeric():
             if start <= int(inp) <= end:
                 return int(inp)
+        if inp.lower() == 'exit':
+            return None
+        
         if inp in letters:
             if start <= letters.index(inp) + 1 <= end:
                 return int(letters.index(inp) + 1)

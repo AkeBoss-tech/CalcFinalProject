@@ -8,8 +8,14 @@ class Question:
         self.type = 'type'
         self.generator = lambda x: x
 
+    @property
+    def askToInclude(self):
+        return f'Would you like to include a {self.name} {self.type} problem on your quiz?'
+
     def getUserAnswer(self):
         u_answer = getAnswer()
+        if u_answer == None:
+            return None, None, None, None
         if u_answer == self.answer + 1:
             a = True
         else:

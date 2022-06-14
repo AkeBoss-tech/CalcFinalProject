@@ -1,2 +1,2 @@
-E**(x_var) * log(Rational(e), E) 
+Integral((Rational('-36') * (x_var)**-5)**2, (x_var, 8, 14)) 
 
