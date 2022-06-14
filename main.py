@@ -1,5 +1,30 @@
+print('Booting Up...')
 # I used repl.it to write this program
 from util import *
+from questions import *
+
+question_types = [
+    PowerRuleDerivativeQuestion,
+    ConstantDerivativeQuestion,
+    CompositeDerivativeQuestion,
+    LinearDerivativeQuestion,
+    AdditionDerivativeQuestion,
+    TrigDerivativeQuestion,
+    ExponentialDerivativeQuestion, 
+    NaturalLogDerivativeQuestion,
+    CompositeIntegralQuestion,
+    TrigIntegralQuestion,
+    PowerRuleIntegralQuestion,
+    ExponentialIntegralQuestion,
+    ConstantIntegralQuestion,
+    CompositeIntegralQuestion,
+    LinearIntegralQuestion,
+    PSeriesQuestion,
+    GeometricSeriesQuestion,
+    ArcLengthQuestion,
+    VolumeQuestion,
+    AreaQuestion
+]
 
 # Imports
 from random import randint
@@ -7,94 +32,6 @@ from random import choice as chooser
 from time import perf_counter
 # importing random package for random integer generation and choosing a random thing in a list
 # imporing perf_counter to measure time
-
-# Constants
-ADD_MAX = 15
-MULTI_MAX = 10
-X_BOUND = 10
-SCALE_MAX = 5
-NEGATIVE = True
-
-def generateAddition():
-    expression = [randint(0, ADD_MAX), randint(0, ADD_MAX)]
-    total = sum(expression)
-    return f"{expression[0]} + {expression[1]}", total
-
-def generateSubtraction():
-    expression = [randint(0, ADD_MAX), randint(0, ADD_MAX)]
-    expression = sorted(expression)
-    if randint(0, 1) == 1 and NEGATIVE:
-        result = expression[0] - expression[1]
-        return f"{expression[0]} - {expression[1]}", result
-    else:
-        result = expression[1] - expression[0]
-        return f"{expression[1]} - {expression[0]}", result
-
-def generateMultiplication():
-    expression = [randint(0, MULTI_MAX), randint(0, MULTI_MAX)]
-    result = expression[0] * expression[1]
-    return f"{expression[0]} * {expression[1]}", result
-
-def generateDivision():
-    expression = [randint(1, MULTI_MAX), randint(1, MULTI_MAX)]
-    result = expression[0] * expression[1]
-    return f"{result} / {expression[1]}", expression[0]
-
-def generateEquation():
-    # Generate the Answer
-    if NEGATIVE:
-        x = randint(-X_BOUND, X_BOUND)
-    else:
-        x = randint(1, X_BOUND)
-
-    # Generate a scalar to multiply the equation by
-    if NEGATIVE:
-        scale = randint(-SCALE_MAX, SCALE_MAX)
-    else:
-        scale = randint(1, SCALE_MAX)
-    
-    # make sure it is not 0
-    while scale == 0:
-        if NEGATIVE:
-            scale = randint(-SCALE_MAX, SCALE_MAX)
-        else:
-            scale = randint(1, SCALE_MAX)
-
-    # save the equation
-    equation = [f'{scale}x', f'{scale * x}']
-
-    if randint(0, 1) == 1:
-        # Add or Subtract
-        num = randint(-SCALE_MAX, SCALE_MAX)
-        
-        # check if the number is positive or negative
-        if num == abs(num):
-            # add it to both sides of the equation
-            equation[0] = equation[0] + f" + {num}"
-            equation[1] = equation[1] + f" + {num}"
-            equation[1] = str(eval(equation[1]))
-        else:
-            equation[0] = equation[0] + f" - {abs(num)}"
-            equation[1] = equation[1] + f" - {abs(num)}"
-            equation[1] = str(eval(equation[1]))
-
-    else:
-        # Divide
-        fraction = randint(1, 10)
-        equation[0] = equation[0] + f" / {fraction}"
-        equation[1] = equation[1] + f" / {fraction}"
-
-        # Simplify if it is not a decimal
-        LHS = eval(equation[1])
-        if int(LHS) == float(LHS):
-            equation[1] = str(int(LHS))
-
-    # flip sides randomly
-    if randint(0, 1) == 1:
-        equation = list(reversed(equation))
-
-    # return the equation list, string, and answer
-    return f"{equation[0]} = {equation[1]}", x
 
 def configureQuiz():
     # Generate Quiz
@@ -129,49 +66,24 @@ def configureQuiz():
             if seconds == -1:
                 continue
             config.append(seconds)
-        
-        questions = [
-            'Would you like addition in the quiz?',
-            'Would you like subtraction in the quiz?',
-            'Would you like multiplication in the quiz?',
-            'Would you like division in the quiz?',
-            'Would you like simple equations in the quiz?',
-        ]
 
         print('Now select the question types you want')
-        for question in questions:
-            config.append(yesOrNo(question))
+        questionGenerator = []
+        for question in question_types:
+            answer = yesOrNo(question().askToInclude)
+            if answer:
+                questionGenerator.append(question)
+            config.append(answer)
         
         if yesOrNo('Would you like a maximum number of questions?'):
             config.append(abs(getIntInput('Enter the Maximum', int)))
         else:
             config.append(0)
-            
-        # Quiz Loop
-        questionGenerator = []
-        
-        if config[1] == True:
-            questionGenerator.append(generateAddition)
-        if config[2] == True:
-            questionGenerator.append(generateSubtraction)
-        if config[3] == True:
-            questionGenerator.append(generateMultiplication)
-        if config[4] == True:
-            questionGenerator.append(generateDivision)
-        if config[5] == True:
-            questionGenerator.append(generateEquation)
 
         # restart if no questions selected
         if len(questionGenerator) == 0:
             print("No Questions")
             continue
-
-        if not yesOrNo('Would you like negative numbers?'):
-            config.append(False)
-            global NEGATIVE
-            NEGATIVE = False
-        else:
-            config.append(True)
 
         return questionGenerator, config
 
@@ -185,16 +97,21 @@ def startQuiz(questionGenerator, config):
     start = perf_counter()
     while True:
         print('\n'*3)
-        func = chooser(questionGenerator)
+        question = None
+        while True:
+            try:
+                question = chooser(questionGenerator)()
+                question.generateQuestion()
+                break
+            except:
+                continue
         
-        expression, answer = func()
-        
-        question = f"{len(problems) + 1}. {expression}"
+        question.askQuestion()
         user_given = perf_counter()
         if user_given - start >= config[0]:
             break
-        user_answer = mathInput(question)
-        if user_answer is False:
+        correct, u_ans, c_ans, _ = question.getUserAnswer()
+        if u_ans is None:
             break
         
         user_answered = perf_counter()
@@ -203,12 +120,12 @@ def startQuiz(questionGenerator, config):
     
         time_to_solve = user_answered - user_given
         # question, correct boolean, time, correct answer, user answer
-        if user_answer == answer:
+        if correct:
             print("Correct")
-            problems.append([question, True, time_to_solve, answer, user_answer])
+            problems.append([question, True, time_to_solve, c_ans, u_ans])
         else:
             print("Incorrect")
-            problems.append([question, False, time_to_solve, answer, user_answer])
+            problems.append([question, False, time_to_solve, c_ans, u_ans])
         print(f'{round(config[0] - user_answered + start, 2)} seconds left')
             
         if config[6] != 0 and len(problems) == config[6]:
@@ -227,15 +144,19 @@ def startQuiz(questionGenerator, config):
         else:
             num_incorrect += 1
 
-    print(f'You got {num_correct} out of {len(problems)}')
-    print(f'With an accuracy of {round(100 * num_correct / len(problems))}%\n')
+    if len(problems) > 0:
+        print(f'You got {num_correct} out of {len(problems)}')
+        print(f'With an accuracy of {round(100 * num_correct / len(problems))}%\n')
+    else:
+        print('Well that is embarassing')
+        return
     
     if num_incorrect != 0:
         input('Enter to view problems wrong')
         print('Here are the problems you got wrong')
         for i in problems:
             if i[1] == False:
-                print(i[0])
+                i[0].askQuestion()
                 print(f'Answer {i[3]}')
                 print(f'You answered {i[4]}')
                 print(f'Time spent {round(i[2], 2)} seconds \n')
@@ -261,9 +182,10 @@ def startQuiz(questionGenerator, config):
         print(problem[0].split('.')[1], 'solved in', round(problem[2],5), 'seconds', 'Correct' if problem[1] else 'Incorrect')
 
     input('Enter to print problems')
-    for i in problems:
-        a = 'Correctly' if i[1] else 'Incorrectly'
-        print(f'{i[0]} answer is {i[3]} you answered {i[4]} {a} in {round(i[2], 2)} seconds')
+    for i in range(len(problems)):
+        thing = problems[i]
+        a = 'Correctly' if thing[1] else 'Incorrectly'
+        print(f'Answer is {thing[3]} you answered {thing[4]} {a} in {round(thing[2], 2)} seconds')
 
 if __name__ == '__main__':
     while True:
