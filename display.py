@@ -57,6 +57,23 @@ def printDerivativeQuestion(equation, questions):
         printf('^e\n')
         a = not a
 
+def printSetUpQuestion(start, end, equation, choices, text):
+    printf(f'^RWhat is the {text} from {start} to {end} of this function?\n')
+    pretty(equation.pprint)
+    printf('*e')
+    print()
+    a = True
+    b = {
+        True: '^r',
+        False: '^G'
+    }
+    # print(questions) DEBUG
+    for i in range(len(choices)):
+        printf(f'{b[a]}{i+1}.\n')
+        pretty(choices[i])
+        printf('^e\n')
+        a = not a
+
 def printConvergenceQuestion(series):
     printf('^RDoes this converge?')
     pretty(series.pprint)
@@ -71,13 +88,22 @@ def printIntegralQuestion(equation, questions):
     pretty(in_integral(equation.pprint))
     printf('*e')
     print()
-    a = True
-    b = {
+    tracker = True
+    things = {
         True: '^r',
         False: '^G'
     }
     for i in range(len(questions)):
-        printf(f'{b[a]}{i+1}.\n')
-        pretty(questions[i].pprint + ' + C')
+        printf(f'{things[tracker]}{i+1}.\n')
+        a = questions[i].pprint
+        b = a.split('+')
+        t = ''
+        for item in b:
+            if not isinstance(eval(item), Rational):
+                t += f'{item} + '
+        
+        t = t[:-2]
+
+        pretty(t + ' + C')
         printf('^e\n')
-        a = not a
+        tracker = not tracker

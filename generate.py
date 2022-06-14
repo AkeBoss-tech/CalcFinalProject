@@ -1,11 +1,10 @@
 from random import randint, shuffle, choice as chooser
-from calculus import Constant, Polynomial, Multiply, P_Series, Geometric_Series, Addition, Exponential, Sin, Cos, Tan, LN, Composite, e_to_the_x
+from calculus import Constant, Divide, Polynomial, Multiply, P_Series, Geometric_Series, Addition, Exponential, Sin, Cos, Tan, LN, Composite, e_to_the_x
 from display import in_integral, pretty, in_sum
 from sympy import *
 
-# TODO add ratio, integral test
-# TODO set up but do not solve area under a curve, volume, and arc length questions
 # TODO incorporate it into the Quiz maker
+# TODO Add PDF converter
 
 def generateRandomPowerRule():
     constant = 0
@@ -85,6 +84,15 @@ def generateIntegralQuestion(equation, special=False):
     # return answers and position of correct answer
     return r_answers, r_positions.index(3)
 
+def generateSetUpQuestion(answers):
+    # right answer first and the rest after
+    r_positions = [0,1,2,3]
+    shuffle(r_positions)
+    r_answers = [answers[i] for i in r_positions]
+
+    # return answers and position of correct answer
+    return r_answers, r_positions.index(0)
+
 def generateFraction(add=2):
     denom = randint(2, 6)
     num = randint(1, denom+add)
@@ -111,18 +119,20 @@ def generateLinearExpression():
     coeff = randint(1, 5)
     return Addition([Multiply([Constant(coeff), Polynomial(1)]), Constant(constant)])
 
-funcs = [
-    Polynomial,
-    Exponential,
-    Sin,
-    Cos,
-    LN,
-    generateLinearExpression,
-]
+
 
 def generateRandomCompositeRule():
+    funcs = [
+        Polynomial,
+        Exponential,
+        Sin,
+        Cos,
+        LN,
+        generateLinearExpression,
+    ]
+
     a = chooser(funcs)
-    choosen = False
+    chosen = False
     if a == Polynomial:
         num = 0
         while num == 0:
@@ -139,11 +149,13 @@ def generateRandomCompositeRule():
         
     elif a == generateLinearExpression:
         a = a()
-        choosen = True
+        chosen = True
     else:
         a = a()
     
     b = chooser(funcs)
+    
+    
     if b == Polynomial:
         num = 0
         while num == 0:
@@ -157,20 +169,14 @@ def generateRandomCompositeRule():
             while num == 0:
                 num = randint(1, 3)
             b = b(num)
-    elif b == generateLinearExpression and not choosen:
+    elif b == generateLinearExpression and not chosen:
         b = b()
-        choosen = True
-    elif b == generateLinearExpression and choosen:
-        if chooser([True, False]):
-            b = b('e')
-        else:
-            num = 0
-            while num == 0:
-                num = randint(1, 3)
-            b = b(num)
     else:
         b = b()
-
+    
+    if chosen:
+        return a.replace(b) 
+    
     if chooser([True, True, False]):
         return Composite(a, b)
         
@@ -190,11 +196,7 @@ def generateRandomCompositeRule():
                 num = randint(1, 3)
             c = c(num)
 
-    elif c == generateLinearExpression and not choosen:
-        c = c()
-        choosen = True
-
-    elif c == generateLinearExpression and choosen:
+    elif c == generateLinearExpression and chosen:
         if chooser([True, False]):
             c = c('e')
         else:
@@ -211,7 +213,7 @@ def generateRandomCompositeRule():
 
 def generateRandomAdditionRule():
     length = randint(2, 4)
-    types = [generateRandomPowerRule, generateRandomConstantRule, generateRandomCompositeRule, Sin, LN, Cos, e_to_the_x]
+    types = [generateRandomPowerRule, generateRandomConstantRule, Sin, LN, Cos, e_to_the_x]
     problems = []
     for i in range(length):
         problems.append(chooser(types)())
@@ -219,13 +221,34 @@ def generateRandomAdditionRule():
     return Addition(problems)
 
 deriv_funcs = [generateRandomPowerRule, generateLinearExpression, generateRandomAdditionRule, generateRandomTrig, generateRandomLN]
+def generateQuotientRule():
+    deriv_funcs = [generateRandomPowerRule, generateLinearExpression, generateRandomTrig, generateRandomLN, generateRandomExponential]
+    a = deriv_funcs
+    numerator = chooser(a)
+    a.remove(numerator)
+    numerator = numerator()
+    denominator = chooser(a)()
+    return Divide(numerator, denominator)
+
+def generateRandomExponential():
+    if chooser([True, False, False, False]):
+        return Exponential('e')
+    
+    frac = generateFraction(6)
+    
+    return Exponential(frac)
+
 def generateArcLength():
     start = randint(2, 10)
     end = start + randint(2, 7)
     equation = chooser(deriv_funcs)()
-    print(f'What is the arc length from {start} to {end} of this function?\n')
-    pretty(equation.pprint)
-    pretty(in_integral(f'sqrt(({equation.derivative.pprint})**2 + 1)', bounds=(start, end)))
+    return equation, start, end
+
+def generateVolume():
+    start = randint(2, 10)
+    end = start + randint(2, 7)
+    equation = chooser(deriv_funcs)()
+    return equation, start, end
 
 int_funcs = [generateRandomPowerRule, generateRandomCompositeRule, generateLinearExpression, generateRandomTrig]
 

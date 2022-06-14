@@ -43,9 +43,11 @@ pretty(random.integral.pprint)"""
 print('Question loop')
 while True:
     questions = {
-        #'Derivative': [generateRandomPowerRule, generateRandomConstantRule,  generateRandomCompositeRule, generateLinearExpression, generateRandomAdditionRule, generateRandomTrig, generateRandomLN],
-        'Integral': [# generateRandomConstantRule, generateRandomPowerRule, generateRandomCompositeRule, generateLinearExpression, 
-        generateRandomTrig
+        'Derivative': [# generateRandomPowerRule, generateRandomConstantRule,  generateRandomCompositeRule, generateLinearExpression, generateRandomAdditionRule, generateRandomTrig, generateRandomLN
+        generateQuotientRule, generateRandomExponential,],
+        'Integral': [# generateRandomConstantRule, generateRandomPowerRule, 
+        generateRandomCompositeRule,generateRandomExponential, # generateLinearExpression, 
+        # generateRandomTrig
         ],
         #'Series': [generatePSeries, generateGeoSeries]
     }
@@ -61,12 +63,18 @@ while True:
     elif a == 'Integral':
         choices, answer = None, None
         if random == generateRandomCompositeRule:
+            special = 'Composite'
             equation = [0,0]
             while equation[1] == 0:
                 t = random()
+                if not isinstance(t, Composite):
+                    special = False
+                    equation = t.derivative
+                    break
+
                 equation = [t, t.derivative]
             
-            choices, answer = generateIntegralQuestion(equation, special='Composite')
+            choices, answer = generateIntegralQuestion(equation, special=special)
             random = t.derivative
             t = t.derivative
         else:

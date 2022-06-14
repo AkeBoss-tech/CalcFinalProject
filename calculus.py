@@ -50,11 +50,24 @@ class Addition:
         self.functions = b
 
     def evaluate(self, x):
-        sum = 0
+        summ = 0
         for function in self.functions:
-            sum += function.evaluate(x)
+            summ += function.evaluate(x)
 
-        return sum
+        return summ
+
+    # replace Polynomial(1) with another function for composite functions
+    def replace(self, function):
+        functions = []
+        for func in self.functions:
+            if isinstance(func, Polynomial) and function.num == 1:
+                functions.append(function)
+            elif isinstance(func, Multiply):
+                functions.append(func.replace(function))
+            else:
+                functions.append(func)
+
+        return Addition(functions)
 
     @property
     def derivative(self):
@@ -192,6 +205,7 @@ class Multiply:
             else:
                 b.append(func)
         if powers != 0:
+            self.poly = Polynomial(powers)
             b.append(Polynomial(powers))
         self.functions = b
 
@@ -200,6 +214,18 @@ class Multiply:
             if isinstance(thing, Constant):
                 self.not_constant.remove(thing)
                 break
+
+    def replace(self, function):
+        functions = []
+        for func in self.functions:
+            if isinstance(func, Polynomial) and func.power == 1:
+                functions.append(function)
+            elif isinstance(func, Addition):
+                functions.append(func.replace(function))
+            else:
+                functions.append(func)
+            
+        return Multiply(functions)
 
     def evaluate(self, x):
         product = 1
@@ -333,6 +359,24 @@ class Divide:
         denominator = Composite(Polynomial(2), self.denominator)
         return Divide(numerator, denominator)
 
+    # TODO w_derivative_1
+    def w_derivative_1(self):
+        ldh = Multiply([self.denominator.derivative, self.numerator])
+        hdl = Multiply([Constant(-1), self.denominator, self.numerator.derivative])
+        numerator = Addition([ldh, hdl])
+        denominator = Composite(Polynomial(2), self.denominator)
+        return Divide(numerator, denominator)
+
+    def w_derivative_2(self):
+        ldh = Multiply([self.denominator, self.numerator.derivative])
+        hdl = Multiply([self.denominator.derivative, self.numerator])
+        numerator = Addition([ldh, hdl])
+        denominator = Composite(Polynomial(2), self.denominator)
+        return Divide(numerator, denominator)
+
+    def w_derivative_3(self):
+        return Divide(self.numerator.derivative, self.denominator.derivative)
+
     def integrals(self):
         # maybe impossible TODO
         return False
@@ -410,6 +454,8 @@ class Constant(Function):
         self.num = num
         if self.num == 'log(e)':
             self.num = 1
+        elif self.num == '':
+            self.num = 1
     
     def evaluate(self, x=0):
         return eval(str(self.num))
@@ -465,6 +511,8 @@ class Constant(Function):
     def pprint(self):
         if isinstance(self.num, str) and 'log' in self.num:
             return self.num
+        elif isinstance(self.num, str) and self.num == 'e':
+            return 'E'
         return f"Rational('{self.num}')"
               
 class Polynomial(Function):
@@ -532,7 +580,7 @@ class Polynomial(Function):
 
     @property
     def pprint(self):
-        return f'x_var**{self.power}'
+        return f'(x_var)**{self.power}'
 
 # Series
 class P_Series:
@@ -787,6 +835,10 @@ class Exponential(Function):
             a = Constant(1)
             self.__class__ = a.__class__
             self.__dict__ = a.__dict__
+        elif self.base == 0:
+            a = Constant(0)
+            self.__class__ = a.__class__
+            self.__dict__ = a.__dict__
     
     def evaluate(self, x):
         return self.base ** x
@@ -795,17 +847,17 @@ class Exponential(Function):
     def derivative(self):
         if self.base == 'e':
             return Exponential('e')
-        return Multiply([Constant(f'log({self.base})'), Exponential(self.base)])
+        return Multiply([Constant(f'log(Rational({self.base}), E)'), Exponential(self.base)])
 
     @property
     def integral(self):
         if self.base == 'e':
             return Exponential('e')
-        return Divide(Exponential(self.base), Constant(f'log({self.base}, E)'))
+        return Divide(Exponential(self.base), Constant(f'log(Rational({self.base}), E)'))
 
     def w_derivative_1(self):
         if self.base == 'e':
-            return Multiply([Constant(f'log({self.base})'), Exponential(self.base)])
+            return Multiply([Constant(f'log(Rational(2), E)'), Exponential(2)])
         return Exponential('e')
         
     def w_derivative_2(self):
@@ -816,12 +868,12 @@ class Exponential(Function):
     def w_derivative_3(self):
         if self.base == 'e':
             return Exponential('e')
-        return Divide(Exponential(self.base), Constant(f'log({self.base}, E)'))
+        return Divide(Exponential(self.base), Constant(f'log(Rational({self.base}), E)'))
 
     def w_integral_1(self):
         if self.base == 'e':
             return Exponential('e')
-        return Multiply([Constant(f'log({self.base})'), Exponential(self.base)])
+        return Multiply([Constant(f'log(Rational({self.base}), E)'), Exponential(self.base)])
         
     def w_integral_2(self):
         return Polynomial(-1)
@@ -849,8 +901,8 @@ class Exponential(Function):
     @property
     def pprint(self):
         if self.base == 'e':
-            return f'E**x_var'
-        return f'{self.base}**x_var'
+            return f'E**(x_var)'
+        return f'Rational({self.base})**(x_var)'
 
 class e_to_the_x(Exponential):
     def __init__(self):

@@ -74,6 +74,12 @@ class TrigDerivativeQuestion(Question):
         self.type = 'Derivative'
         self.generator = generateRandomTrig
 
+class ExponentialDerivativeQuestion(Question):
+    def __init__(self) -> None:
+        self.name = 'Exponential'
+        self.type = 'Derivative'
+        self.generator = generateRandomExponential
+
 class NaturalLogDerivativeQuestion(Question):
     def __init__(self) -> None:
         self.name = 'Natural Log'
@@ -96,6 +102,9 @@ class CompositeIntegralQuestion(Question):
         self.choices, self.answer = generateIntegralQuestion(equation, special='Composite')
         self.answer = t.derivative
 
+    def askQuestion(self):
+        printIntegralQuestion(self.equation, self.choices)
+
 class TrigIntegralQuestion(Question):
     def __init__(self) -> None:
         self.name = 'Trignometry'
@@ -107,6 +116,12 @@ class PowerRuleIntegralQuestion(Question):
         self.name = 'Power Rule'
         self.type = 'Integral'
         self.generator = generateRandomPowerRule
+
+class ExponentialIntegralQuestion(Question):
+    def __init__(self) -> None:
+        self.name = 'Exponential'
+        self.type = 'Integral'
+        self.generator = generateRandomExponential
 
 class ConstantIntegralQuestion(Question):
     def __init__(self) -> None:
@@ -143,3 +158,94 @@ class IntegralTestQuestion(Question):
         self.name = 'Integral Test'
         self.type = 'Series'
         self.generator = generatePSeries
+
+
+class ArcLengthQuestion(Question):
+    def __init__(self) -> None:
+        self.name = 'Arc Length'
+        self.type = 'Set up but do not solve'
+        self.generator = generateArcLength
+
+    def c_answer(self):
+        return in_integral(f'sqrt(({self.equation.derivative.pprint})**2 + 1)', bounds=(self.start, self.end))
+
+    def w_answer_1(self):
+        return in_integral(f'sqrt(({self.equation.pprint})**2 + 1)', bounds=(self.start, self.end))
+
+    def w_answer_2(self):
+        return in_integral(f'sqrt({self.equation.derivative.pprint})', bounds=(self.start, self.end))
+
+    def w_answer_3(self):
+        return in_integral(f'({self.equation.derivative.pprint})**2', bounds=(self.start, self.end))
+
+    def generateQuestion(self):
+        self.equation, self.start, self.end = self.generator()
+        self.shuffled_answers, self.answer = generateSetUpQuestion([
+            self.c_answer(),
+            self.w_answer_1(),
+            self.w_answer_2(),
+            self.w_answer_3()
+        ])
+
+    def askQuestion(self):
+        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'arc length')
+
+class VolumeQuestion(Question):
+    def __init__(self) -> None:
+        self.name = 'Volume Disk Method'
+        self.type = 'Set up but do not solve'
+        self.generator = generateVolume
+
+    def c_answer(self):
+        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})**2', bounds=(self.start, self.end))
+
+    def w_answer_1(self):
+        return in_integral(f'({self.equation.pprint})**2', bounds=(self.start, self.end))
+
+    def w_answer_2(self):
+        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})', bounds=(self.start, self.end))
+
+    def w_answer_3(self):
+        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})**2 + {self.equation.pprint}', bounds=(self.start, self.end))
+
+    def generateQuestion(self):
+        self.equation, self.start, self.end = self.generator()
+        self.shuffled_answers, self.answer = generateSetUpQuestion([
+            self.c_answer(),
+            self.w_answer_1(),
+            self.w_answer_2(),
+            self.w_answer_3()
+        ])
+
+    def askQuestion(self):
+        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'volume revolved around the x-axis')
+
+class AreaQuestion(Question):
+    def __init__(self) -> None:
+        self.name = 'Area Under Curve'
+        self.type = 'Set up but do not solve'
+        self.generator = generateVolume
+
+    def c_answer(self):
+        return in_integral(f'{self.equation.pprint}', bounds=(self.start, self.end))
+
+    def w_answer_1(self):
+        return in_integral(f'({self.equation.pprint})**2', bounds=(self.start, self.end))
+
+    def w_answer_2(self):
+        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})', bounds=(self.start, self.end))
+
+    def w_answer_3(self):
+        return in_integral(f'({self.equation.pprint})**2 + {self.equation.pprint} + 1', bounds=(self.start, self.end))
+
+    def generateQuestion(self):
+        self.equation, self.start, self.end = self.generator()
+        self.shuffled_answers, self.answer = generateSetUpQuestion([
+            self.c_answer(),
+            self.w_answer_1(),
+            self.w_answer_2(),
+            self.w_answer_3()
+        ])
+
+    def askQuestion(self):
+        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'area under the curve')
