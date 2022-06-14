@@ -3,7 +3,6 @@ from calculus import Constant, Divide, Polynomial, Multiply, P_Series, Geometric
 from display import in_integral, pretty, in_sum
 from sympy import *
 
-# TODO incorporate it into the Quiz maker
 # TODO Add PDF converter
 
 def generateRandomPowerRule():

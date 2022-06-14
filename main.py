@@ -48,19 +48,19 @@ def configureQuiz():
     )
     while True:
         choices = [
-            '30 seconds',
             '1 minute',
             '2 minutes',
+            '4 minutes',
             'Custom'
         ]
         
         user_choice = choice_input(choices)
         if user_choice == 0:
-            config.append(30)
-        elif user_choice == 1:
             config.append(60)
-        elif user_choice == 2:
+        elif user_choice == 1:
             config.append(120)
+        elif user_choice == 2:
+            config.append(240)
         elif user_choice == 3:
             seconds = getSeconds()
             if seconds == -1:
@@ -84,6 +84,22 @@ def configureQuiz():
         if len(questionGenerator) == 0:
             print("No Questions")
             continue
+
+        if yesOrNo('Would you like to print some questions before you start?'):
+            num = abs(getIntInput('How many questions would you like to print?', int))
+            
+            letters = ['a', 'b', 'c', 'd', 'e', 'f']
+            for i in range(num):
+                while True:
+                    try:
+                        question = chooser(questionGenerator)()
+                        question.generateQuestion()
+                        question.askQuestion()
+                        print(f'\nThe Answer was {question.answer + 1} or {letters[question.answer]}')
+                        sleep(2)
+                        break
+                    except:
+                        continue
 
         return questionGenerator, config
 

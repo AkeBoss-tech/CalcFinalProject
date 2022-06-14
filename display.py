@@ -3,6 +3,7 @@ from sympy import Integral, sqrt, symbols, pprint, sin, cos, Derivative, log, E,
 from color import printf, inputf, randomColor
 
 from sympy.concrete.summations import Sum
+from time import sleep
 
 x_var, n_var, C = symbols('x n C')
 C = symbols('C', integer=True)
@@ -48,6 +49,7 @@ def printDerivativeQuestion(equation, questions):
     pretty(in_derivative(equation.pprint))
     printf('*e')
     print()
+    sleep(2)
     a = True
     b = {
         True: '^r',
@@ -65,6 +67,7 @@ def printSetUpQuestion(start, end, equation, choices, text):
     pretty(equation.pprint)
     printf('*e')
     print()
+    sleep(2)
     a = True
     b = {
         True: '^r',
@@ -91,6 +94,7 @@ def printIntegralQuestion(equation, questions):
     pretty(in_integral(equation.pprint))
     printf('*e')
     print()
+    sleep(2)
     tracker = True
     things = {
         True: '^r',

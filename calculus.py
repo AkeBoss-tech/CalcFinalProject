@@ -359,7 +359,6 @@ class Divide:
         denominator = Composite(Polynomial(2), self.denominator)
         return Divide(numerator, denominator)
 
-    # TODO w_derivative_1
     def w_derivative_1(self):
         ldh = Multiply([self.denominator.derivative, self.numerator])
         hdl = Multiply([Constant(-1), self.denominator, self.numerator.derivative])
