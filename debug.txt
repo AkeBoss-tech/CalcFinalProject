@@ -1,2 +1,2 @@
-Rational('5') * (x_var)**1   + C 
+Rational(4)**(x_var) * log(Rational(4), E)  + C 
 

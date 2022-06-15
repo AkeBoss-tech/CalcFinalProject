@@ -1,6 +1,7 @@
 from random import randint
 from random import choice as chooser
 from time import perf_counter
+from color import printf
 
 class Operation:
     def __init__(self):
@@ -74,7 +75,7 @@ def getSeconds():
 def yesOrNo(text):
 	while True:
 		# loop untill acceptable input
-		print(f'{text} (y,n)')
+		printf(f'{text} (y,n)')
 		a = input('> ').strip().upper()
 	
 		# Depending on answer stop or run again

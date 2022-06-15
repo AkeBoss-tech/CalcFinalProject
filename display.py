@@ -1,4 +1,4 @@
-from sympy import Integral, sqrt, symbols, pprint, sin, cos, Derivative, log, E, ln, oo, Rational, tan, Sum
+from sympy import Integral, sqrt, symbols, pprint, sin, cos, Derivative, log, E, ln, oo, Rational, tan, Sum, pi
 
 from color import printf, inputf, randomColor
 
@@ -8,11 +8,11 @@ from time import sleep
 x_var, n_var, C = symbols('x n C')
 C = symbols('C', integer=True)
 
-
+letters = ['a', 'b', 'c', 'd', 'e', 'f']
 
 def pretty(text) -> None:
-    with open('debug.txt', 'w') as file:
-        print(text, '\n', file=file) # DEBUG
+    #with open('debug.txt', 'w') as file:
+    #    print(text, '\n', file=file) # DEBUG
     pprint(eval(text), mat_symbol_style='bold')
 
 def in_derivative(text):
@@ -44,8 +44,10 @@ def getAnswer(start = 1, end = 4):
                 return int(letters.index(inp) + 1)
         print('answer not accepted')
 
-def printDerivativeQuestion(equation, questions):
-    printf('^RWhat is ')
+
+
+def printDerivativeQuestion(equation, questions, question_num=''):
+    printf(f'^R{question_num} What is ')
     pretty(in_derivative(equation.pprint))
     printf('*e')
     print()
@@ -57,13 +59,13 @@ def printDerivativeQuestion(equation, questions):
     }
     # print(questions) DEBUG
     for i in range(len(questions)):
-        printf(f'{b[a]}{i+1}.\n')
+        printf(f'{b[a]}{letters[i]}.\n')
         pretty(questions[i].pprint)
         printf('^e\n')
         a = not a
 
-def printSetUpQuestion(start, end, equation, choices, text):
-    printf(f'^RWhat is the {text} from {start} to {end} of this function?\n')
+def printSetUpQuestion(start, end, equation, choices, text, question_num=''):
+    printf(f'^R{question_num} What is the {text} from {start} to {end} of this function?\n')
     pretty(equation.pprint)
     printf('*e')
     print()
@@ -75,22 +77,22 @@ def printSetUpQuestion(start, end, equation, choices, text):
     }
     # print(questions) DEBUG
     for i in range(len(choices)):
-        printf(f'{b[a]}{i+1}.\n')
+        printf(f'{b[a]}{letters[i]}.\n')
         pretty(choices[i])
         printf('^e\n')
         a = not a
 
-def printConvergenceQuestion(series):
-    printf('^RDoes this converge?')
+def printConvergenceQuestion(series, question_num=''):
+    printf(f'^R{question_num} Does this converge?')
     pretty(series.pprint)
     printf('*e')
     print()
     
-    printf('^r1. Converges*e')
-    printf('^G2. Diverges*e')
+    printf('^ra. Converges*e')
+    printf('^Gb. Diverges*e')
 
-def printIntegralQuestion(equation, questions):
-    printf('^RWhat is ')
+def printIntegralQuestion(equation, questions, question_num=''):
+    printf(f'^R{question_num} What is ')
     pretty(in_integral(equation.pprint))
     printf('*e')
     print()
@@ -101,16 +103,16 @@ def printIntegralQuestion(equation, questions):
         False: '^G'
     }
     for i in range(len(questions)):
-        printf(f'{things[tracker]}{i+1}.\n')
+        printf(f'{things[tracker]}{letters[i]}.\n')
         a = questions[i].pprint
         b = a.split('+')
         t = ''
         for item in b:
             if not isinstance(eval(item), Rational):
                 t += f'{item} + '
-        
-        t = t[:-2]
 
-        pretty(t + ' + C')
+        # print(t)
+
+        pretty(t + 'C')
         printf('^e\n')
         tracker = not tracker

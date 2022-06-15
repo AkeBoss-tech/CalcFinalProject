@@ -4,6 +4,7 @@ from display import in_integral, pretty, in_sum
 from sympy import *
 
 # TODO Add PDF converter
+# TODO add average value of a function
 
 def generateRandomPowerRule():
     constant = 0
@@ -62,7 +63,7 @@ def generateIntegralQuestion(equation, special=False):
     # list of function and derivative
     # [og function, derivative]
     answer, incorrect = None, None
-    if special != False and special == 'Composite':
+    if special == 'Composite':
         if isinstance(equation[0], Addition):
             funcs = []
             for func in equation[0].functions:
@@ -244,6 +245,12 @@ def generateArcLength():
     return equation, start, end
 
 def generateVolume():
+    start = randint(2, 10)
+    end = start + randint(2, 7)
+    equation = chooser(deriv_funcs)()
+    return equation, start, end
+
+def generateAverageValue():
     start = randint(2, 10)
     end = start + randint(2, 7)
     equation = chooser(deriv_funcs)()

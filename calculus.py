@@ -87,6 +87,8 @@ class Addition:
     def w_derivative_1(self):
         derivatives = []
         for function in self.functions[:-1]:
+            derivatives.append(function)
+        for function in self.functions[:-1]:
             derivatives.append(function.derivative)
         return Addition(derivatives)
 
@@ -120,19 +122,19 @@ class Addition:
     
     def __repr__(self):
         a = ''
-        for func in self.functions[:-1]:
+        for func in self.functions:
             a += str(func.__repr__())
             a += " + "
-        a += str(self.functions[-1].__repr__())
+        a = a[:-2]
         return a
 
     @property
     def pprint(self):
         a = ''
-        for func in self.functions[:-1]:
+        for func in self.functions:
             a += str(func.pprint)
             a += " + "
-        a += str(self.functions[-1].pprint)
+        a = a[:-2]
         return a
 
 class Multiply:
@@ -629,7 +631,7 @@ class Sin(Function):
         return Cos()
 
     def w_derivative_1(self):
-        return self
+        return Sin()
 
     def w_derivative_2(self):
         return Multiply([Constant(-1), Cos()])
@@ -685,7 +687,7 @@ class Cos(Function):
         return Sin()
 
     def w_derivative_1(self):
-        return self
+        return Cos()
 
     def w_derivative_2(self):
         return Multiply([Constant(-1), Cos()])
@@ -694,7 +696,7 @@ class Cos(Function):
         return Multiply([Constant(-1), Sin()])
 
     def w_integral_1(self):
-        return self
+        return Multiply([Constant(-1), Cos()])
 
     def w_integral_2(self):
         return Cos()
@@ -866,12 +868,12 @@ class Exponential(Function):
 
     def w_derivative_3(self):
         if self.base == 'e':
-            return Exponential('e')
+            return Multiply([Exponential('e'), Constant(2)])
         return Divide(Exponential(self.base), Constant(f'log(Rational({self.base}), E)'))
 
     def w_integral_1(self):
         if self.base == 'e':
-            return Exponential('e')
+            return Multiply([Constant(2), Exponential('e')])
         return Multiply([Constant(f'log(Rational({self.base}), E)'), Exponential(self.base)])
         
     def w_integral_2(self):

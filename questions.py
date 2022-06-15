@@ -10,7 +10,7 @@ class Question:
 
     @property
     def askToInclude(self):
-        return f'Would you like to include a {self.name} {self.type} problem on your quiz?'
+        return f'Would you like to include a ^B{self.name} {self.type}^e problem on your quiz?'
 
     def getUserAnswer(self):
         u_answer = getAnswer()
@@ -22,8 +22,15 @@ class Question:
             a = False
         # correct or not, user answer, correct answer, question
         return a, u_answer, self.answer + 1, self
+
+    def printSimple(self):
+        if self.type == 'Derivative' or self.type == 'Integral' or self.type == 'Set up but do not solve':
+            return f'{self.name} {self.type} {self.equation}'
+        elif self.type == 'Series':
+            return f'{self.name} {self.type} {self.series}' 
     
     def generateQuestion(self):
+        print(self.name, self.type)
         if self.type == 'Derivative':
             self.equation = self.generator()
             self.choices, self.answer = generateDerivativeQuestion(self.equation)
@@ -32,17 +39,17 @@ class Question:
             self.choices, self.answer = generateIntegralQuestion(self.equation)
         elif self.type == 'Series':
             self.series = self.generator()
-            self.answer = 0 if sum.convergence else 1
+            self.answer = 0 if self.series.convergence else 1
         return None
 
-    def askQuestion(self):
+    def askQuestion(self, question_num=''):
         if self.type == 'Derivative':
-            printDerivativeQuestion(self.equation, self.choices)
+            printDerivativeQuestion(self.equation, self.choices, question_num)
         elif self.type == 'Integral':
-            printIntegralQuestion(self.equation, self.choices)
+            printIntegralQuestion(self.equation, self.choices, question_num)
         elif self.type == 'Series':
-            printConvergenceQuestion(self.sum)   
-        pass
+            printConvergenceQuestion(self.series, question_num)   
+        
 
 class PowerRuleDerivativeQuestion(Question):
     def __init__(self) -> None:
@@ -100,16 +107,18 @@ class CompositeIntegralQuestion(Question):
         self.generator = generateRandomCompositeRule
     
     def generateQuestion(self):
-        equation = [0,0]
-        while equation[1] == 0:
+        print(self.name, self.type)
+        self.equation = [0,0]
+        while self.equation[1] == 0:
             t = self.generator()
-            equation = [t, t.derivative]
+            if not isinstance(t, Composite):
+                continue
+            self.equation = [t, t.derivative]
         
-        self.choices, self.answer = generateIntegralQuestion(equation, special='Composite')
-        self.answer = t.derivative
+        self.choices, self.answer = generateIntegralQuestion(self.equation, special='Composite')
 
-    def askQuestion(self):
-        printIntegralQuestion(self.equation, self.choices)
+    def askQuestion(self, question_num=''):
+        printIntegralQuestion(self.equation[1], self.choices, question_num)
 
 class TrigIntegralQuestion(Question):
     def __init__(self) -> None:
@@ -134,12 +143,6 @@ class ConstantIntegralQuestion(Question):
         self.name = 'Constant'
         self.type = 'Integral'
         self.generator = generateRandomConstantRule
-
-class CompositeIntegralQuestion(Question):
-    def __init__(self) -> None:
-        self.name = 'Composite'
-        self.type = 'Integral'
-        self.generator = generateRandomCompositeRule
 
 class LinearIntegralQuestion(Question):
     def __init__(self) -> None:
@@ -182,7 +185,7 @@ class ArcLengthQuestion(Question):
         return in_integral(f'sqrt({self.equation.derivative.pprint})', bounds=(self.start, self.end))
 
     def w_answer_3(self):
-        return in_integral(f'({self.equation.derivative.pprint})**2', bounds=(self.start, self.end))
+        return in_integral(f'pi*({self.equation.derivative.pprint})**2', bounds=(self.start, self.end))
 
     def generateQuestion(self):
         self.equation, self.start, self.end = self.generator()
@@ -193,8 +196,8 @@ class ArcLengthQuestion(Question):
             self.w_answer_3()
         ])
 
-    def askQuestion(self):
-        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'arc length')
+    def askQuestion(self, question_num=''):
+        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'arc length', question_num)
 
 class VolumeQuestion(Question):
     def __init__(self) -> None:
@@ -203,16 +206,16 @@ class VolumeQuestion(Question):
         self.generator = generateVolume
 
     def c_answer(self):
-        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})**2', bounds=(self.start, self.end))
+        return "pi * " + in_integral(f'({self.equation.pprint})**2', bounds=(self.start, self.end))
 
     def w_answer_1(self):
         return in_integral(f'({self.equation.pprint})**2', bounds=(self.start, self.end))
 
     def w_answer_2(self):
-        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})', bounds=(self.start, self.end))
+        return "pi * " + in_integral(f'({self.equation.pprint})', bounds=(self.start, self.end))
 
     def w_answer_3(self):
-        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})**2 + {self.equation.pprint}', bounds=(self.start, self.end))
+        return "pi * " + in_integral(f'({self.equation.pprint})**2 + {self.equation.pprint}', bounds=(self.start, self.end))
 
     def generateQuestion(self):
         self.equation, self.start, self.end = self.generator()
@@ -223,8 +226,8 @@ class VolumeQuestion(Question):
             self.w_answer_3()
         ])
 
-    def askQuestion(self):
-        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'volume revolved around the x-axis')
+    def askQuestion(self, question_num=''):
+        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'volume revolved around the x-axis', question_num)
 
 class AreaQuestion(Question):
     def __init__(self) -> None:
@@ -239,7 +242,7 @@ class AreaQuestion(Question):
         return in_integral(f'({self.equation.pprint})**2', bounds=(self.start, self.end))
 
     def w_answer_2(self):
-        return "Rational('pi') * " + in_integral(f'({self.equation.pprint})', bounds=(self.start, self.end))
+        return "pi * " + in_integral(f'({self.equation.pprint})', bounds=(self.start, self.end))
 
     def w_answer_3(self):
         return in_integral(f'({self.equation.pprint})**2 + {self.equation.pprint} + 1', bounds=(self.start, self.end))
@@ -253,5 +256,35 @@ class AreaQuestion(Question):
             self.w_answer_3()
         ])
 
-    def askQuestion(self):
-        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'area under the curve')
+    def askQuestion(self, question_num=''):
+        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'area under the curve', question_num)
+
+class AverageValueQuestion(Question):
+    def __init__(self) -> None:
+        self.name = 'Average value'
+        self.type = 'Set up but do not solve'
+        self.generator = generateAverageValue
+
+    def c_answer(self):
+        return f'Rational(1/({self.end} - {self.start})) *' + in_integral(f'{self.equation.pprint}', bounds=(self.start, self.end))
+
+    def w_answer_1(self):
+        return in_integral(f'{self.equation.pprint}', bounds=(self.start, self.end))
+
+    def w_answer_2(self):
+        return f'({self.end} - {self.start}) *' + in_integral(f'{self.equation.pprint}', bounds=(self.start, self.end))
+
+    def w_answer_3(self):
+        return f'Rational(1/({self.end} - {self.start})) *' + in_integral(f'{self.equation.derivative.pprint}', bounds=(self.start, self.end))
+
+    def generateQuestion(self):
+        self.equation, self.start, self.end = self.generator()
+        self.shuffled_answers, self.answer = generateSetUpQuestion([
+            self.c_answer(),
+            self.w_answer_1(),
+            self.w_answer_2(),
+            self.w_answer_3()
+        ])
+
+    def askQuestion(self, question_num=''):
+        printSetUpQuestion(self.start, self.end, self.equation, self.shuffled_answers, 'area under the curve', question_num)
